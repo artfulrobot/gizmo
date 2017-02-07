@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Register gizmo classes.
+ */
+function hook_gizmo_classes() {
+  $classes = [ 'DemoGizmo' ];
+  return $classes;
+}
+
