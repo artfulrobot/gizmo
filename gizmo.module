@@ -62,10 +62,23 @@ function gizmo_page_admin_gizmo() {
   $gizmos = db_query("SELECT * FROM gizmo ORDER BY classname, name;")->fetchAllAssoc('id', PDO::FETCH_ASSOC);
   $rows = [];
   foreach ($gizmos as $gizmo_rec) {
-    $gizmo = Gizmo::createFromRowData($gizmo_rec);
+    try {
+      $gizmo = Gizmo::createFromRowData($gizmo_rec);
+    }
+    catch (GizmoNotFoundException $e) {
+      $rows []= ['data' => [
+        htmlspecialchars($gizmo_rec['classname']),
+        htmlspecialchars($gizmo_rec['name']),
+        htmlspecialchars('ERROR: '. $e->getMessage()),
+        "",
+        '',
+      ]];
+      continue;
+
+    }
     $rows []= ['data' => [
-      $gizmo->human_name,
-      $gizmo->machine_name,
+      htmlspecialchars($gizmo->human_name),
+      $gizmo->machine_name, // Should be safe.
       "<a href='/admin/structure/gizmo/$gizmo->id' >Edit</a>",
       $gizmo->tokensList(),
     ]];
@@ -199,12 +212,14 @@ abstract class Gizmo {
    * Ensure that the given class name is a subclass of this.
    */
   public static function validateClass($classname) {
-    $classname = $classname;
+    if (!class_exists($classname, $autoload=TRUE)) {
+      throw new GizmoNotFoundException("'$classname' is not found.");
+    }
     $reflection = new \ReflectionClass($classname);
     if ($reflection->isSubclassOf('Gizmo')) {
       return $classname;
     }
-    throw new \InvalidArgumentException("'$classname' is not a gizmo class.");
+    throw new GizmoNotFoundException("'$classname' is not a gizmo class.");
   }
   /**
    * Implements hook_token_info.
@@ -259,6 +274,7 @@ abstract class Gizmo {
           }
         }
         catch (GizmoNotFoundException $e) {
+          watchdog('gizmo', $e->getMessage(), [], WATCHDOG_ERROR);
           continue;
         }
         $chained_tokens = token_find_with_prefix($tokens, $machine_name);
@@ -293,7 +309,13 @@ abstract class Gizmo {
         ->fetchAllAssoc('id');
 
       foreach ($gizmos as $row) {
-        $gizmo = Gizmo::createFromClass($row->classname);
+        try {
+          $gizmo = Gizmo::createFromClass($row->classname);
+        }
+        catch (GizmoNotFoundException $e) {
+          watchdog('gizmo', $e->getMessage(), [], WATCHDOG_ERROR);
+          continue;
+        }
 
         static::$block_info["gizmo-$row->id"] = [
           'info' => 'Gizmo: ' . $gizmo->human_name . ": $row->name",
@@ -418,7 +440,7 @@ abstract class Gizmo {
 
     $params = [
       'phpdata' => serialize($this->config),
-      'classname' => substr(get_class($this), 16),
+      'classname' => get_class($this),
       'name' => $form_state['values']['machine_name'],
       'expose_block' => $form_state['values']['expose_block'],
       'expose_token' => (int) $form_state['values']['expose_token'],
