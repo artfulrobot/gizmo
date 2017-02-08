@@ -31,7 +31,6 @@ function gizmo_schema() {
         'description' => 'php serialized content',
         'type' => 'blob',
         'not null' => true,
-        'default' => '',
       ),
       'expose_token' => array(
         'description' => 'Whether this instance exposes tokens',
