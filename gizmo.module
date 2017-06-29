@@ -42,6 +42,7 @@ function gizmo_menu() {
   );
   $items['admin/structure/gizmo'] = array(
     'title' => 'Gizmos',
+    'description' => 'Administer Gizmos - reusable functionality',
     'page callback' => 'gizmo_page_admin_gizmo',
     'access arguments' => array('administer_gizmos'),
   );
@@ -141,7 +142,12 @@ function gizmo_page_admin_gizmo() {
     $adds []= "<a href='/admin/structure/gizmo/add/$gizmo_class'>" . htmlspecialchars($gizmo->human_name) . "</a> ";
   }
 
-  $page['adds'] = ['#markup' => "<p>Create new: " . implode(' | ', $adds) . "</p>"];
+  if ($adds) {
+    $page['adds'] = ['#markup' => "<p>Create new: " . implode(' | ', $adds) . "</p>"];
+  }
+  else {
+    drupal_set_message('There are no modules defining gizmos. You can enable the gizmo_demo module if you want to see how it works.', 'warning');
+  }
 
   return $page;
 }
