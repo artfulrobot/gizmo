@@ -230,6 +230,7 @@ abstract class Gizmo {
     return static::$cache_instances_tokens;
   }
   public function __construct($row=NULL) {
+    $this->config = $this->default_config;
     if ($row !== NULL) {
       $this->loadFromStoredData($row);
     }
@@ -353,6 +354,21 @@ abstract class Gizmo {
       }
       $this->id = $success;
     }
+  }
+  /**
+   * Update stored config.
+   *
+   * This is useful if the gizmo needs to update its own config.
+   */
+  public function updateConfig() {
+    if (!$this->id) {
+      throw new Exception("attempt to call updateConfig on an unsaved gizmo.");
+    }
+    $params = ['phpdata' => serialize($this->config)];
+    db_update('gizmo')
+      ->fields($params)
+      ->condition('id', $this->id)
+      ->execute();
   }
   /**
    * Convert the form values to config.
