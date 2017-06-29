@@ -25,6 +25,13 @@ also create a 2nd one for Project B. etc.
 Equally it could be a donation form, or something that presents certain data
 from elsewhere.
 
+## Get started
+
+1. Install the module.
+2. Give 'Administer gizmos' permission to appropriate roles.
+3. Visit admin/structure/gizmo
+
+
 ## Tell me it's already made.
 
 I have found this functionality very useful over years of running sites and was

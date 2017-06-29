@@ -1,0 +1,136 @@
+<?php
+/**
+ * Example implementation of a gizmo.
+ */
+
+/**
+ * Register demo gizmo classes.
+ *
+ * Implements hook_gizmo_classes() defined by this module.
+ */
+function gizmo_demo_gizmo_classes() {
+  $classes = [ 'DemoGizmo' ];
+  return $classes;
+}
+
+
+/**
+ * Demo implementation of a gizmo.
+ */
+class DemoGizmo extends Gizmo
+{
+  /**
+   * @var string Human facing name */
+  public $human_name = 'Demo Gizmo';
+  /**
+   * @var array Default config */
+  public $default_config = ['colour' => '888888'];
+  /**
+   * Form callback for extending classes.
+   */
+  public function adminForm($form, &$form_state) {
+    $form['colour'] = [
+      '#type'          => 'textfield',
+      '#default_value' => $this->config['colour'],
+      '#title'         => 'What is your favourite colour in RRGGBB format?',
+    ];
+    // Remember to return the form.
+    return $form;
+  }
+  /**
+   * Form validation for extending classes.
+   */
+  public function adminFormValidate($form, &$form_state) {
+    if (!preg_match('/^[0-9a-fA-F]{6}$/', $form_state['values']['colour'])) {
+      form_set_error('colour', 'Sorry, you need to enter the value in RRGGBB format.');
+    }
+  }
+  /**
+   * Output the gizmo's block, if exposed block.
+   */
+  public function blockView($delta) {
+    return [
+      'subject' => 'Favourite colour',
+      'content' => drupal_get_form("gizmo__{$this->id}__colourForm"),
+    ];
+  }
+  /**
+   * Convert the form values to config.
+   *
+   * The default implementation simply calls setConfig. But you might need to
+   * do some reworking of the values.
+   *
+   * DemoGizmo implementation just ensures we store the colour in lowercase hex.
+   */
+  protected function adminFormSetConfigFromFormValues($values) {
+    // Massage the values as we want.
+    $values['colour'] = strtolower($values['colour']);
+    // Remember to call this. (`parent::adminFormSetConfigFromFormValues($values)`
+    // would do the same thing).
+    $this->setConfig($values);
+  }
+  // Our form.
+  /**
+   * Colour form.
+   */
+  public function colourForm($form, &$form_state) {
+
+    // Build normal form.
+    $form['intro'] = [
+      '#markup' =>
+        "<div style='padding:2rem;background-color:#eee;color:#222;text-align:center;'>"
+          . "The favourite colour configured in the $this->human_name called <strong>"
+          . htmlspecialchars($this->machine_name)
+          . "</strong> is <div style='margin-top:1rem;background-color:#{$this->config['colour']};padding:1rem;text-align:center;' >"
+          . "{$this->config['colour']} | <span style='color:white;'>{$this->config['colour']}</span></div>",
+    ];
+
+    if (!empty($form_state['result'])) {
+      // We have been submitted and that's that.
+      $form['result'] = ['#markup' =>
+          "<div id='colour-form-ajax-wrapper-$this->id' style='padding-top:1rem;'><strong>$form_state[result]</strong>"];
+      // Remove this to reset the form for next time.
+      unset($form_state['result']);
+    }
+    else {
+      $form['like'] = [
+        '#prefix' => "<div id='colour-form-ajax-wrapper-$this->id' style='padding-top:1rem;'>"
+                     . '<p>Do you like it, too?</p>',
+        '#type' => 'submit',
+        '#value' => 'Yes',
+        '#ajax' => [
+          'callback' => 'gizmo_form_delegation_ajax',
+          'wrapper' => "colour-form-ajax-wrapper-$this->id",
+        ],
+      ];
+      $form['dislike'] = [
+        '#type' => 'submit',
+        '#value' => 'No',
+      ];
+    }
+
+    // Close ajax wrapper div and then the container wrapper div.
+    $form['outro'] = [
+      '#markup' => '</div></div>',
+    ];
+    return $form;
+  }
+  /**
+   * Colour form Submit.
+   */
+  public function colourFormSubmit($form, &$form_state) {
+
+    $form_state['result'] = $form_state['values']['op'] == 'Yes'
+      ? "You're so cool."
+      : "Well, it takes all types...";
+
+    $form_state['rebuild'] = TRUE;
+  }
+  /**
+   * Colour form Ajax.
+   */
+  public function colourFormAjax($form, &$form_state) {
+    return $form['result'];
+  }
+}
+

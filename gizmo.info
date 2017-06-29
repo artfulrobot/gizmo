@@ -4,4 +4,5 @@ package = Custom
 core = 7.x
 
 files[] = gizmo.module
+files[] = gizmo.inc
 files[] = gizmo.install
