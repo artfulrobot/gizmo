@@ -10,6 +10,22 @@ interactive bit of content, currently displayed via **block** and/or **token**.
 The idea is that gizmos provide *reusable* functionality with different
 configurations that are simple for users to create.
 
+## For the Impatient who want to get an idea of what it does.
+
+1. Install the module and also the `gizmo_demo` module that came bundled with
+   this.
+2. Give 'Administer gizmos' permission to appropriate roles.
+3. Visit `admin/structure/gizmo` and add a demo gizmo which simply lets you set
+   a colour in its config and then generates a form in a block that will ask
+   users if they like that colour too.
+4. Complete the config form. Tick the 'expose block' option.
+5. Place the new block on a page.
+6. Visit the page and play with the form.
+
+You can add more instances of this gizmo and include several of their blocks on
+one page.
+
+
 ## Example: Contact Us form.
 
 Say you have a few contact us forms to make. Maybe they each have a lot in
@@ -24,13 +40,6 @@ also create a 2nd one for Project B. etc.
 
 Equally it could be a donation form, or something that presents certain data
 from elsewhere.
-
-## Get started
-
-1. Install the module.
-2. Give 'Administer gizmos' permission to appropriate roles.
-3. Visit admin/structure/gizmo
-
 
 ## Tell me it's already made.
 
