@@ -139,6 +139,8 @@ function gizmo_page_admin_gizmo() {
   $adds = [];
   foreach (module_invoke_all('gizmo_classes') as $gizmo_class) {
     $gizmo = new $gizmo_class();
+    // Encode namespaced classes for URLs.
+    $gizmo_class = str_replace('\\', '--', $gizmo_class);
     $adds []= "<a href='/admin/structure/gizmo/add/$gizmo_class'>" . htmlspecialchars($gizmo->human_name) . "</a> ";
   }
 
@@ -155,7 +157,9 @@ function gizmo_page_admin_gizmo() {
 function gizmo_form_gizmo_edit($form, &$form_state) {
   $id = $form_state['build_info']['args'][0];
   if ($id == 'add') {
-    $gizmo = Gizmo::createFromClass($form_state['build_info']['args'][1]);
+    // Allow for namespaced classnames to be specified like Foo--Bar -> Foo\Bar
+    $class_name = str_replace('--', '\\', $form_state['build_info']['args'][1]);
+    $gizmo = Gizmo::createFromClass($class_name);
   }
   else {
     $gizmo = Gizmo::createFromId($id);
