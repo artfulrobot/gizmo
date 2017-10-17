@@ -200,6 +200,8 @@ function gizmo_form_delegation($form, &$form_state, $gizmo_id, $form_delta) {
   // Save the gizmo_id and form_delta in the $form var.
   $form['#gizmo_id'] = $gizmo_id;
   $form['#form_delta'] = $form_delta;
+  // Sometimes this is unset?
+  $form['#form_id'] = "gizmo__{$gizmo_id}__{$form_delta}";
 
   $gizmo = Gizmo::createFromId($gizmo_id);
   if (!method_exists($gizmo, $form_delta)) {
