@@ -46,6 +46,10 @@ function gizmo_menu() {
     'page callback' => 'gizmo_page_admin_gizmo',
     'access arguments' => array('administer_gizmos'),
   );
+  $items['gizmo/%/api'] = [
+    'page callback' => 'gizmo_page_json_api',
+    'access callback' => TRUE,
+  ];
 
   return $items;
 }
@@ -152,6 +156,27 @@ function gizmo_page_admin_gizmo() {
   }
 
   return $page;
+}
+/**
+ * Provides simple json api.
+ *
+ */
+function gizmo_page_json_api() {
+  $gizmo_id = (int) arg(1);
+  $gizmo = Gizmo::createFromId($gizmo_id);
+  // Strip off the first three items from the path: gizmo/<id>/api
+  $path = array_slice(explode('/', current_path()), 3);
+  $data = file_get_contents('php://input');
+  if ($data) {
+    $data = json_decode($data, TRUE);
+  }
+  $response = $gizmo->handleJsonRequest($_SERVER['REQUEST_METHOD'], $path, $data);
+  if ($response === NULL) {
+    $response['body'] = ['error' => 'Not Found'];
+    header("$_SERVER[SERVER_PROTOCOL] 404 Not Found");
+  }
+  drupal_json_output($response['body']);
+  drupal_exit();
 }
 // Forms.
 function gizmo_form_gizmo_edit($form, &$form_state) {

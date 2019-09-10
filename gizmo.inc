@@ -258,7 +258,7 @@ abstract class Gizmo {
   /**
    * Output the gizmo's block, if exposed block.
    */
-  public function blockView($delta) {
+  public function blockView($delta=NULL) {
     return [
       'subject' => '',
       'content' => '',
@@ -370,6 +370,17 @@ abstract class Gizmo {
       ->condition('id', $this->id)
       ->execute();
   }
+  /**
+   * Handle API request from paths beginning with /gizmo/<ID>/api[/...]
+   *
+   * @param string $method GET|POST|...
+   * @param array $path
+   * @param array $body decoded JSON input
+   *
+   * @return null|array with key 'body' whose value is an object to return.
+   * If null returned 404 is issued.
+   */
+  public function handleJsonRequest($method, $path, $body) { }
   /**
    * Convert the form values to config.
    *
