@@ -1,8 +1,0 @@
-name = Gizmo API
-description = Allows plugable gizmos of various sorts.
-package = Custom
-core = 7.x
-
-files[] = gizmo.module
-files[] = gizmo.inc
-files[] = gizmo.install

@@ -1,6 +1,0 @@
-name = Gizmo Demo
-description = Example implementation of a Gizmo
-package = Custom
-core = 7.x
-
-files[] = gizmo_demo.module
